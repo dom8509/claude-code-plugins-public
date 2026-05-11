@@ -1,0 +1,13 @@
+{
+  "name": "excalidraw",
+  "version": "1.0.0",
+  "description": "Expert skill for creating and editing Excalidraw diagrams — flowcharts, mind maps, architecture diagrams, sequence diagrams, concept maps, and more",
+  "author": {
+    "name": "dom8509",
+    "url": "https://github.com/dom8509"
+  },
+  "homepage": "https://github.com/dom8509/claude-code-plugins-public/tree/main/plugins/excalidraw",
+  "repository": "https://github.com/dom8509/claude-code-plugins-public",
+  "license": "MIT",
+  "keywords": ["excalidraw", "diagram", "flowchart", "mindmap", "architecture", "visualization"]
+}

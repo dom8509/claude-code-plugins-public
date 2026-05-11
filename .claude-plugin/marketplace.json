@@ -1,0 +1,17 @@
+{
+  "name": "claude-code-plugins-public",
+  "description": "Public Claude Code plugins by dom8509 — skills, agents, and tools for Claude Code",
+  "owner": {
+    "name": "dom8509",
+    "url": "https://github.com/dom8509"
+  },
+  "plugins": [
+    {
+      "name": "excalidraw",
+      "description": "Expert skill for creating and editing Excalidraw diagrams — flowcharts, mind maps, architecture diagrams, sequence diagrams, concept maps, and more. Uses the Excalidraw MCP tools with progressive rendering and checkpoint-based editing.",
+      "source": "./plugins/excalidraw",
+      "category": "productivity",
+      "homepage": "https://github.com/dom8509/claude-code-plugins-public/tree/main/plugins/excalidraw"
+    }
+  ]
+}

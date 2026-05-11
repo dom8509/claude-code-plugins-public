@@ -1,0 +1,44 @@
+{
+  "skill_name": "excalidraw",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Zeichne ein Flowchart für den Prozess: Eine Idee kommt auf → wird bewertet (gut genug?) → wenn ja: wird umgesetzt → wenn nein: wird verworfen oder verfeinert",
+      "expected_output": "A flowchart with start node, evaluation diamond, yes/no branches, action rectangles, and end nodes. Should use appropriate colors, readable font sizes, proper camera setup, and progressive drawing order.",
+      "assertions": [
+        { "text": "Uses cameraUpdate as the first element", "type": "presence" },
+        { "text": "Contains a diamond element for the decision", "type": "presence" },
+        { "text": "Has yes/no branches with labeled arrows", "type": "presence" },
+        { "text": "Uses minimum fontSize 16 for labels", "type": "quality" },
+        { "text": "Uses backgroundColor on shapes (not just outlines)", "type": "quality" }
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Erstelle eine Mindmap mit dem Zentrum 'Persönliche Entwicklung' und mindestens 5 Zweigen aus diesen Bereichen: Lesen, Sport, Systemdenken, Attraktoren, Gewohnheiten",
+      "expected_output": "A mind map with a central 'Persönliche Entwicklung' node, radiating branches for each topic in different colors. Should have clear visual hierarchy, no overlapping elements, and use multiple camera positions or a well-sized single camera.",
+      "assertions": [
+        { "text": "Central node is clearly identifiable and larger/bolder than branches", "type": "quality" },
+        { "text": "At least 5 branch nodes are present", "type": "presence" },
+        { "text": "Different colors are used for different branches", "type": "quality" },
+        { "text": "Arrows connect center to branches (no arrowheads needed)", "type": "presence" },
+        { "text": "No elements overlap each other", "type": "quality" }
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Zeig mir ein Architektur-Diagramm einer einfachen Web-App: Browser im Frontend, REST API in der Mitte, PostgreSQL-Datenbank im Backend. Zeige die Verbindungen und was jeweils übertragen wird.",
+      "expected_output": "A layered architecture diagram with 3 colored zone backgrounds (frontend/API/data), component boxes in each zone, labeled arrows showing data flow (HTTP requests, SQL queries), and a clear title.",
+      "assertions": [
+        { "text": "Three distinct layers/zones are visually separated with background colors", "type": "presence" },
+        { "text": "Arrow labels describe what is transmitted (HTTP, SQL, etc.)", "type": "quality" },
+        { "text": "Zone labels identify each layer", "type": "presence" },
+        { "text": "Camera is sized to show the full diagram with padding", "type": "quality" },
+        { "text": "Component names are clearly readable (fontSize >= 16)", "type": "quality" }
+      ],
+      "files": []
+    }
+  ]
+}
