@@ -46,6 +46,8 @@ Call `read_me` before your first `create_view` in every new conversation. It giv
 
 ### 3 — Create with `create_view`
 
+For the full element property schema (all types, style properties, arrow bindings, frames): read `references/element-skeleton.md`
+
 Key rules from read_me (don't skip these):
 - **Start with `cameraUpdate`** as the very first element
 - **Draw progressively**: zone → shape + label → arrow → next shape (not all shapes, then all labels)
