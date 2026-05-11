@@ -1,133 +1,262 @@
 ---
 name: excalidraw
 description: >
-  Expert guide for creating and editing Excalidraw diagrams using the Excalidraw MCP tools.
+  Creates and edits Excalidraw diagrams as .excalidraw.md files directly in the Obsidian vault.
   Use this skill whenever the user asks to draw, sketch, visualize, or diagram anything —
   flowcharts, mind maps, system architectures, sequence diagrams, concept maps, process flows,
   timelines, comparisons, org charts, or any other visual representation of information.
   Also triggers on: "Excalidraw", "create a diagram", "draw this", "visualize X", "sketch",
   "whiteboard", "make a chart", "show me a diagram of", "diagram this process", "visual thinking",
   "architecture diagram", or any request to turn ideas/processes/systems into a graphic.
-  When the user wants to export or share a drawing, use export_to_excalidraw.
-  When editing an existing diagram, use checkpoints to restore and extend the previous state.
 ---
 
 # Excalidraw Skill
 
-Create beautiful hand-drawn style diagrams with streaming animations — flowcharts, mind maps,
-architecture diagrams, sequence diagrams, concept maps, and more.
-
-## MCP Tools at a Glance
-
-| Tool | When to Use |
-|---|---|
-| `read_me` | **Call ONCE per conversation, before the first `create_view`.** Returns element format, color palette, and examples. |
-| `create_view` | Draw or update a diagram. Returns a `checkpointId` — save it for editing later. |
-| `save_checkpoint` | Save the user's edited state after they modify the diagram in fullscreen. |
-| `read_checkpoint` | Load a saved checkpoint by id. |
-| `export_to_excalidraw` | Upload to excalidraw.com and return a shareable URL for further editing. |
+Creates and edits Excalidraw diagrams as `.excalidraw.md` files directly in the Obsidian vault at `Drawings/`. No MCP server required — uses the `Write`, `Read`, and `Edit` tools.
 
 ## Standard Workflow
 
-### 1 — Plan before drawing
+### 1 — Plan the diagram
 
-Ask yourself (or clarify with the user):
+Before writing any JSON:
 - **What's the central message?** One clear takeaway per diagram
-- **Who's the audience?** Simpler for sharing, richer for personal thinking
-- **What type of diagram fits?** → See the type guide below
+- **What type fits?** → See the type guide below
+- **Estimate layout:** how many elements, approximate x/y coordinate ranges
 
-### 2 — Always call `read_me` first
+### 2 — Write the file
 
-Call `read_me` before your first `create_view` in every new conversation. It gives you:
-- Element types and required fields
-- Color palette (use it consistently)
-- Camera sizing rules (critical — always 4:3 ratio)
-- Drawing order rules (backgrounds → shapes → arrows)
+Use the `Write` tool to create `Drawings/<name>.excalidraw.md`.
 
-### 3 — Create with `create_view`
+Wrap elements in the Obsidian Excalidraw file format (see below). Write all elements at once — there is no streaming.
 
-For the full element property schema (all types, style properties, arrow bindings, frames): read `references/element-skeleton.md`
+### 3 — Tell the user how to embed
 
-Key rules from read_me (don't skip these):
-- **Start with `cameraUpdate`** as the very first element
-- **Draw progressively**: zone → shape + label → arrow → next shape (not all shapes, then all labels)
-- **Camera sizes are strict** (4:3 only): S=400×300, M=600×450, L=800×600, XL=1200×900
-- **Minimum fontSize**: 16 for body, 20 for titles
-- **Use `label` property** on shapes instead of separate text elements
-- **Use `cameraUpdate` liberally** — panning as you draw guides the viewer's eye and looks great
+```
+![[Drawings/<name>.excalidraw.md]]
+```
 
-### 4 — Edit with checkpoints
+Or to open for editing: open the file in Obsidian, then switch to Excalidraw view via "More Options".
 
-When the user wants to change an existing diagram:
+### 4 — Edit existing diagrams
+
+1. `Read` the `.excalidraw.md` file
+2. Locate the JSON block between `%%` markers
+3. Parse → modify elements array
+4. `Write` the file back with the updated JSON
+
+---
+
+## File Format
+
+Every `.excalidraw.md` file follows this exact structure:
+
+```markdown
+---
+excalidraw-plugin: parsed
+tags: [excalidraw]
+---
+
+# Excalidraw Data
+
+## Text Elements
+%%
+## Drawing
+```json
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://excalidraw.com",
+  "elements": [ ...elements here... ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": null
+  },
+  "files": {}
+}
+` `` (no space before backticks)
+%%
+```
+
+**`appState`:** Set `scrollX`/`scrollY` to center the diagram if needed. `viewBackgroundColor` defaults to `"#ffffff"`.
+
+---
+
+## Element Format
+
+For the full property schema see `references/element-skeleton.md`.
+
+Every element needs these base fields:
 
 ```json
-[
-  { "type": "restoreCheckpoint", "id": "<checkpointId>" },
-  // new/replacement elements follow...
-]
+{
+  "id": "e1",
+  "type": "rectangle",
+  "x": 100,
+  "y": 100,
+  "width": 200,
+  "height": 80,
+  "angle": 0,
+  "strokeColor": "#1e1e1e",
+  "backgroundColor": "transparent",
+  "fillStyle": "solid",
+  "strokeWidth": 2,
+  "strokeStyle": "solid",
+  "roughness": 1,
+  "opacity": 100,
+  "groupIds": [],
+  "frameId": null,
+  "roundness": null,
+  "seed": 1,
+  "version": 1,
+  "versionNonce": 1,
+  "isDeleted": false,
+  "boundElements": [],
+  "updated": 1715000000000,
+  "link": null,
+  "locked": false
+}
 ```
 
-To remove elements: `{ "type": "delete", "ids": "id1,id2,id3" }` — place it after the elements it removes. Never reuse deleted ids.
+**IDs:** Use short readable strings: `"r1"`, `"r2"`, `"a1"`, `"t1"` etc. Increment `seed` and `versionNonce` for each element.
 
-### 5 — Export when done
+### Text inside shapes
 
+Add a `text` element positioned at the center of the shape. Set `containerId: null` for simple positioning (no resize binding needed for static diagrams):
+
+```json
+{
+  "id": "t1",
+  "type": "text",
+  "x": 110,
+  "y": 128,
+  "width": 180,
+  "height": 24,
+  "angle": 0,
+  "strokeColor": "#1e1e1e",
+  "backgroundColor": "transparent",
+  "fillStyle": "solid",
+  "strokeWidth": 1,
+  "strokeStyle": "solid",
+  "roughness": 1,
+  "opacity": 100,
+  "groupIds": [],
+  "frameId": null,
+  "roundness": null,
+  "seed": 2,
+  "version": 1,
+  "versionNonce": 2,
+  "isDeleted": false,
+  "boundElements": [],
+  "updated": 1715000000000,
+  "link": null,
+  "locked": false,
+  "text": "My Label",
+  "fontSize": 18,
+  "fontFamily": 5,
+  "textAlign": "center",
+  "verticalAlign": "middle",
+  "containerId": null,
+  "originalText": "My Label",
+  "autoResize": true,
+  "lineHeight": 1.25
+}
 ```
-export_to_excalidraw(json: <serialized diagram JSON>)
+
+Center a text element: `text.x = shape.x + (shape.width - text.width) / 2`, `text.y = shape.y + (shape.height - text.height) / 2`
+
+**fontFamily values:** `1` = hand-drawn, `2` = normal, `3` = code, `5` = Nunito (default)
+
+### Arrows
+
+```json
+{
+  "id": "a1",
+  "type": "arrow",
+  "x": 200,
+  "y": 180,
+  "width": 0,
+  "height": 60,
+  "angle": 0,
+  "strokeColor": "#1e1e1e",
+  "backgroundColor": "transparent",
+  "fillStyle": "solid",
+  "strokeWidth": 2,
+  "strokeStyle": "solid",
+  "roughness": 1,
+  "opacity": 100,
+  "groupIds": [],
+  "frameId": null,
+  "roundness": { "type": 2 },
+  "seed": 3,
+  "version": 1,
+  "versionNonce": 3,
+  "isDeleted": false,
+  "boundElements": [],
+  "updated": 1715000000000,
+  "link": null,
+  "locked": false,
+  "points": [[0, 0], [0, 60]],
+  "lastCommittedPoint": null,
+  "startBinding": null,
+  "endBinding": null,
+  "startArrowhead": null,
+  "endArrowhead": "arrow"
+}
 ```
 
-Returns a shareable excalidraw.com link. Offer this proactively once the diagram looks good.
+`points` are relative to the element's `x`/`y`. A vertical arrow going down 60px: `[[0,0],[0,60]]`. Diagonal: `[[0,0],[100,60]]`.
 
 ---
 
 ## Diagram Type Guide
 
-For detailed patterns and JSON skeletons, read `references/diagram-patterns.md`.
+For detailed patterns and full JSON examples: read `references/diagram-patterns.md`.
 
 | User Intent | Diagram Type | Core Pattern |
 |---|---|---|
 | Process, steps, workflow | **Flowchart** | rectangles → arrows → diamond decisions |
 | Brainstorm, ideas, topics | **Mind Map** | central node, radiating branches |
-| System overview, components | **Architecture** | colored background zones, component boxes, arrows |
+| System overview, components | **Architecture** | colored background rectangles as zones, component boxes, arrows |
 | Interactions over time | **Sequence Diagram** | vertical actors, dashed lifelines, horizontal arrows |
 | Concepts and relationships | **Concept Map** | labeled nodes, labeled edges, clusters |
-| Priorities, 2×2 comparisons | **Quadrant / Matrix** | four quadrant zones, labels, items placed within |
+| Priorities, 2×2 comparisons | **Quadrant / Matrix** | four zone rectangles, labels, items placed within |
 | Time, milestones, phases | **Timeline** | horizontal axis, milestone markers, annotations |
-| Reporting structure, hierarchy | **Tree / Org Chart** | top-down boxes, vertical+horizontal connectors |
-| Loose sketch, free thinking | **Whiteboard** | mixed shapes, annotations, visual notes |
+| Reporting structure, hierarchy | **Tree / Org Chart** | top-down boxes, vertical + horizontal connectors |
 
 ---
 
 ## Visual Thinking Principles
 
-Good diagrams reveal structure that text hides. Before drawing, consider:
+- **Central idea first** — most important element at visual center or top
+- **Relationships are the content** — label arrows when connection type isn't obvious
+- **Zones create context** — low-opacity background rectangles (~35% opacity) group elements
+- **Less is more** — one clear point beats a complete map
+- **Color carries meaning** — use consistently: blue=primary, green=success/output, amber=decision/warning, red=error/rejection, purple=special
 
-- **Central idea first** — place the most important element at the visual center or top
-- **Relationships are the content** — arrows show causality, sequence, or membership; label them when the connection type isn't obvious
-- **Zones create context** — background rectangles with low opacity (~35%) group related elements into layers or domains without clutter
-- **Less is more** — a diagram that makes one point clearly beats a complete map that takes 5 minutes to parse
-- **Color carries meaning** — use the palette consistently (blue=primary/input, green=success/output, amber=warning, red=error, purple=special)
+**Color palette:**
+- Blue: `#a5d8ff` fill / `#1971c2` stroke
+- Green: `#b2f2bb` fill / `#22c55e` stroke
+- Amber: `#fff3bf` fill / `#f59e0b` stroke
+- Red: `#ffc9c9` fill / `#ef4444` stroke
+- Purple: `#e9d8fd` fill / `#7950f2` stroke
+- Neutral: `#f1f3f5` fill / `#495057` stroke
 
 ---
 
 ## Obsidian Integration
 
-For users with the Excalidraw Obsidian plugin:
-- Save exported JSON as a `.excalidraw` file in the vault's `Drawings/` folder
-- Embed in notes with `![[Drawings/my-diagram.excalidraw]]`
-- The plugin supports `.excalidraw.md` format (JSON wrapped in a markdown code block)
-- Drawings can link to vault notes using `[[wikilinks]]` as element labels
+- Files live in `Drawings/` folder of the vault
+- Embed in any note: `![[Drawings/my-diagram.excalidraw.md]]`
+- Element labels can use `[[wikilinks]]` as text to link to vault notes
+- Open for editing: click "More Options" → "Open as Excalidraw"
 
 ---
 
 ## Common Mistakes to Avoid
 
-- **Wrong camera ratio** — non-4:3 sizes cause distortion; always use S/M/L/XL/XXL presets
-- **Reusing deleted ids** — always assign fresh ids to replacement elements
-- **Flat drawing order** — don't batch all shapes then all labels; emit each shape with its label before moving to the next
-- **Tiny text** — below fontSize 16 is unreadable at display scale
-- **Light gray text on white** — minimum text color on white background is `#757575`
-- **Too much in one view** — if the diagram gets crowded, split into multiple focused diagrams or use camera pans to reveal sections progressively
-
----
-
-*For per-diagram-type patterns and JSON templates: read `references/diagram-patterns.md`*
+- **Missing base fields** — always include all fields from the base template; missing `groupIds`, `boundElements`, etc. can cause parse errors
+- **Absolute arrow points** — `points` are relative to the arrow's `x`/`y`, not absolute coordinates
+- **Text not centered** — calculate text position from shape center; don't guess
+- **Seed collisions** — increment seed for every element; duplicates cause rendering issues
+- **Tiny text** — minimum `fontSize: 16` for readability
+- **Forgetting `%%` delimiters** — the JSON block must be wrapped in `%%` markers, inside the `## Drawing` section
