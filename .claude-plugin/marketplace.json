@@ -8,10 +8,17 @@
   "plugins": [
     {
       "name": "excalidraw",
-      "description": "Expert skill for creating and editing Excalidraw diagrams — flowcharts, mind maps, architecture diagrams, sequence diagrams, concept maps, and more. Uses the Excalidraw MCP tools with progressive rendering and checkpoint-based editing.",
+      "description": "Expert skill for creating and editing Excalidraw diagrams — flowcharts, mind maps, architecture diagrams, sequence diagrams, concept maps, and more. Creates .excalidraw.md files directly in the Obsidian vault.",
       "source": "./plugins/excalidraw",
       "category": "productivity",
       "homepage": "https://github.com/dom8509/claude-code-plugins-public/tree/main/plugins/excalidraw"
+    },
+    {
+      "name": "notebooklm",
+      "description": "Google NotebookLM integration via nlm CLI — autonomous agent for context-efficient operations and full CLI skill reference.",
+      "source": "./plugins/notebooklm",
+      "category": "productivity",
+      "homepage": "https://github.com/dom8509/claude-code-plugins-public/tree/main/plugins/notebooklm"
     }
   ]
 }
