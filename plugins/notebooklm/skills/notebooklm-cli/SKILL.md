@@ -12,13 +12,22 @@ This skill provides comprehensive guidance for using NotebookLM via both the `nl
 
 Before using the `nlm` CLI, it must be installed. **Recommended method: uv tool install** (requires [uv](https://docs.astral.sh/uv/)).
 
-### Install via uv (Recommended)
+### Install from local source (Recommended — source included in this repo)
+
+The NLM CLI source code lives at `plugins/notebooklm/nlm-cli/` in this repository.
+
+```bash
+# From the repo root:
+uv tool install plugins/notebooklm/nlm-cli/
+```
+
+This installs both the `nlm` CLI and the `notebooklm-mcp` MCP server from the local source.
+
+### Install from PyPI via uv
 
 ```bash
 uv tool install notebooklm-mcp-cli
 ```
-
-This installs both the `nlm` CLI and the `notebooklm-mcp` MCP server in one step.
 
 ### Install via pip or pipx
 
@@ -28,21 +37,31 @@ pip install notebooklm-mcp-cli
 pipx install notebooklm-mcp-cli
 ```
 
-### Run without installing (uvx)
+### Run without installing (uvx, from local source)
 
 ```bash
-uvx --from notebooklm-mcp-cli nlm --help
+uvx --from plugins/notebooklm/nlm-cli/ nlm --help
 ```
 
 ### Upgrade
 
 ```bash
-uv tool upgrade notebooklm-mcp-cli         # via uv
-pip install --upgrade notebooklm-mcp-cli   # via pip
-pipx upgrade notebooklm-mcp-cli            # via pipx
+# From local source (after pulling latest):
+uv tool install --force plugins/notebooklm/nlm-cli/
 
-# Force reinstall if version constraints prevent upgrade:
-uv tool install --force notebooklm-mcp-cli
+# From PyPI:
+uv tool upgrade notebooklm-mcp-cli
+pip install --upgrade notebooklm-mcp-cli
+pipx upgrade notebooklm-mcp-cli
+```
+
+### Pull upstream updates into the local source
+
+The local source is managed as a **git subtree** from `jacob-bd/notebooklm-mcp-cli`.
+To pull the latest upstream changes:
+
+```bash
+git subtree pull --prefix=plugins/notebooklm/nlm-cli nlm-cli-upstream main --squash
 ```
 
 ### MCP Server Configuration (uvx, no local install required)
