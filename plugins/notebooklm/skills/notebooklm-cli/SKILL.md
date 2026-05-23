@@ -8,19 +8,89 @@ version: "0.6.11"
 
 This skill provides comprehensive guidance for using NotebookLM via both the `nlm` CLI and MCP tools.
 
+## Installation
+
+Before using the `nlm` CLI, it must be installed. **Recommended method: uv tool install** (requires [uv](https://docs.astral.sh/uv/)).
+
+### Install via uv (Recommended)
+
+```bash
+uv tool install notebooklm-mcp-cli
+```
+
+This installs both the `nlm` CLI and the `notebooklm-mcp` MCP server in one step.
+
+### Install via pip or pipx
+
+```bash
+pip install notebooklm-mcp-cli
+# or
+pipx install notebooklm-mcp-cli
+```
+
+### Run without installing (uvx)
+
+```bash
+uvx --from notebooklm-mcp-cli nlm --help
+```
+
+### Upgrade
+
+```bash
+uv tool upgrade notebooklm-mcp-cli         # via uv
+pip install --upgrade notebooklm-mcp-cli   # via pip
+pipx upgrade notebooklm-mcp-cli            # via pipx
+
+# Force reinstall if version constraints prevent upgrade:
+uv tool install --force notebooklm-mcp-cli
+```
+
+### MCP Server Configuration (uvx, no local install required)
+
+```json
+{
+  "mcpServers": {
+    "notebooklm-mcp": {
+      "command": "uvx",
+      "args": ["--from", "notebooklm-mcp-cli", "notebooklm-mcp"]
+    }
+  }
+}
+```
+
+### Install the NotebookLM Skill for Claude Code
+
+After installing the CLI, install the skill for Claude Code via:
+
+```bash
+nlm skill install claude-code
+```
+
+Check and update installed skills:
+
+```bash
+nlm skill list                  # Show installation status for all AI tools
+nlm skill update                # Update all outdated skills
+nlm skill update claude-code    # Update only the Claude Code skill
+```
+
+---
+
 ## Tool Detection (CRITICAL - Read First!)
 
 **ALWAYS check which tools are available before proceeding:**
 
 1. **Check for MCP tools**: Look for tools starting with `mcp__notebooklm-mcp__*` or `mcp_notebooklm_*`
-2. **If BOTH MCP tools AND CLI are available**: **ASK the user** which they prefer to use before proceeding
-3. **If only MCP tools are available**: Use them directly (refer to tool docstrings for parameters)
-4. **If only CLI is available**: Use `nlm` CLI commands via Bash
+2. **Check if CLI is installed**: Run `which nlm` or `nlm --version` to verify
+3. **If BOTH MCP tools AND CLI are available**: **ASK the user** which they prefer to use before proceeding
+4. **If only MCP tools are available**: Use them directly (refer to tool docstrings for parameters)
+5. **If only CLI is available**: Use `nlm` CLI commands via Bash
+6. **If NEITHER is available**: Guide the user through installation (see Installation section above)
 
 **Decision Logic:**
 ```
 has_mcp_tools = check_available_tools()  # Look for mcp__notebooklm-mcp__* or mcp_notebooklm_*
-has_cli = check_bash_available()  # Can run nlm commands
+has_cli = run("which nlm") != ""         # Check if nlm binary exists
 
 if has_mcp_tools and has_cli:
     # ASK USER: "I can use either MCP tools or the nlm CLI. Which do you prefer?"
@@ -28,9 +98,17 @@ if has_mcp_tools and has_cli:
 else if has_mcp_tools:
     # Use MCP tools directly
     mcp__notebooklm-mcp__notebook_list()
-else:
+else if has_cli:
     # Use CLI via Bash
     bash("nlm notebook list")
+else:
+    # Neither available — guide through installation
+    has_uv = run("which uv") != ""
+    if has_uv:
+        # Offer: run("uv tool install notebooklm-mcp-cli")
+    else:
+        # Suggest: pip install notebooklm-mcp-cli  OR  pipx install notebooklm-mcp-cli
+    # After install: run("nlm skill install claude-code") to install the skill
 ```
 
 This skill documents BOTH approaches. Choose the appropriate one based on tool availability and **user preference**.
