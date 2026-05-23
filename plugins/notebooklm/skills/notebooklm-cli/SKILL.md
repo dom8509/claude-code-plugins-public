@@ -1,7 +1,7 @@
 ---
 name: notebooklm-cli
 description: "Expert guide for the NotebookLM CLI (`nlm`) and MCP server - interfaces for Google NotebookLM. Use this skill when users want to interact with NotebookLM programmatically, including: creating/managing notebooks, adding sources (URLs, YouTube, text, Google Drive), generating content (podcasts, reports, quizzes, flashcards, mind maps, slides, infographics, videos, data tables), conducting research, chatting with sources, or automating NotebookLM workflows. Triggers on mentions of \"nlm\", \"notebooklm\", \"notebook lm\", \"podcast generation\", \"audio overview\", or any NotebookLM-related automation task."
-version: "0.5.15"
+version: "0.6.11"
 ---
 
 # NotebookLM CLI & MCP Expert
@@ -183,6 +183,7 @@ nlm source add <nb-id> --url "https://youtube.com/..." # YouTube video
 nlm source add <nb-id> --text "content" --title "X"  # Pasted text
 nlm source add <nb-id> --drive <doc-id>              # Drive doc (auto-detect type)
 nlm source add <nb-id> --drive <doc-id> --type slides # Explicit type
+nlm source add <nb-id> --file document.epub --wait --wait-timeout 300  # EPUB file
 
 # Listing and viewing
 nlm source list <nb-id>                # Table of sources
@@ -234,7 +235,8 @@ nlm research status <nb-id> --task-id <tid>   # Check specific task
 nlm research status <nb-id> --full            # Full details
 
 # Import discovered sources
-nlm research import <nb-id> <task-id>            # Import all
+nlm research import <nb-id> <task-id>                   # Import all
+nlm research import <nb-id> <task-id> --cited-only      # Only import cited sources
 nlm research import <nb-id> <task-id> --indices 0,2,5  # Import specific
 nlm research import <nb-id> <task-id> --timeout 600    # Custom timeout (default: 300s)
 ```
@@ -513,6 +515,7 @@ nlm skill list                              # Show installation status
 nlm skill update                            # Update all outdated skills
 nlm skill update <tool>                     # Update specific skill (e.g., claude-code)
 nlm skill install <tool>                    # Install skill
+nlm skill install hermes                    # Install Hermes Agent skill
 nlm skill uninstall <tool>                  # Uninstall skill
 ```
 
@@ -620,6 +623,39 @@ nlm tag add <notebook> --tags "ai" --title "My Notebook"  # With display title
 nlm tag remove <notebook> --tags "ai"                     # Remove tags
 nlm tag list                                              # List all tagged notebooks
 nlm tag select "ai research"                              # Find notebooks by tag match
+```
+
+### 16. Source Labels
+
+Organize notebook sources into thematic categories using AI-generated or manual labels. Auto-labeling requires 5+ sources.
+
+#### MCP Tools
+
+```python
+label(notebook_id="...", action="auto")                                    # AI-generate labels
+label(notebook_id="...", action="list")                                    # List all labels
+label(notebook_id="...", action="create", name="Research Papers", emoji="📚")
+label(notebook_id="...", action="rename", label_id="...", name="New Name")
+label(notebook_id="...", action="set_emoji", label_id="...", emoji="🔬")
+label(notebook_id="...", action="move_source", source_id="...", label_id="...")
+label(notebook_id="...", action="delete", label_id="...", confirm=True)
+label(notebook_id="...", action="reorganize", confirm=True)                # Replace all labels
+label(notebook_id="...", action="reorganize", unlabeled_only=True)         # Label only uncategorized
+```
+
+#### CLI Commands
+
+```bash
+nlm label auto <nb-id>                                  # AI-generate categories (5+ sources required)
+nlm label list <nb-id>                                  # Show all labels
+nlm label create <nb-id> "Research Papers" --emoji 📚  # Create label with optional emoji
+nlm label rename <nb-id> <label-id> "New Name"         # Rename label
+nlm label set-emoji <nb-id> <label-id> "🔬"            # Attach emoji marker
+nlm label move-source <nb-id> <source-id> <label-id>   # Assign source to label
+nlm label delete <nb-id> <label-id> --confirm          # Delete label (irreversible)
+nlm label reorganize <nb-id>                            # AI re-categorize all sources (prompts)
+nlm label reorganize <nb-id> --unlabeled                # Label only uncategorized sources
+nlm label reorganize <nb-id> --confirm                  # Re-categorize all, skip prompt
 ```
 
 ## Common Patterns
