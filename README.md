@@ -7,6 +7,7 @@ Public Claude Code plugins by [dom8509](https://github.com/dom8509).
 | Plugin | Description | Category |
 |---|---|---|
 | [excalidraw](./plugins/excalidraw) | Expert skill for Excalidraw diagrams — flowcharts, mind maps, architecture, and more | productivity |
+| [notebooklm](./plugins/notebooklm) | Google NotebookLM integration via nlm CLI — autonomous agent for context-efficient operations and full CLI skill reference | productivity |
 
 ## Installation
 
