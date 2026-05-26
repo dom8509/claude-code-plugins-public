@@ -1,0 +1,13 @@
+{
+  "name": "claude-md",
+  "version": "1.0.0",
+  "description": "Skill for analyzing, maintaining, and creating CLAUDE.md files following official Anthropic best practices",
+  "author": {
+    "name": "dom8509",
+    "url": "https://github.com/dom8509"
+  },
+  "homepage": "https://github.com/dom8509/claude-code-plugins-public/tree/main/plugins/claude-md",
+  "repository": "https://github.com/dom8509/claude-code-plugins-public",
+  "license": "MIT",
+  "keywords": ["claude-md", "memory", "best-practices", "configuration", "context", "instructions"]
+}

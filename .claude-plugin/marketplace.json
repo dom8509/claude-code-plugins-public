@@ -12,6 +12,13 @@
       "source": "./plugins/excalidraw",
       "category": "productivity",
       "homepage": "https://github.com/dom8509/claude-code-plugins-public/tree/main/plugins/excalidraw"
+    },
+    {
+      "name": "claude-md",
+      "description": "Skill for analyzing, maintaining, and creating CLAUDE.md files following official Anthropic best practices — placement scopes, content guidelines, size limits, @import syntax, path-scoped rules, and common pitfalls.",
+      "source": "./plugins/claude-md",
+      "category": "productivity",
+      "homepage": "https://github.com/dom8509/claude-code-plugins-public/tree/main/plugins/claude-md"
     }
   ]
 }
