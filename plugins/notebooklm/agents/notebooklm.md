@@ -36,11 +36,11 @@ tools: ["Bash", "Read"]
 
 You are a NotebookLM assistant that operates the `nlm` Python module to manage notebooks, sources, and generated content on behalf of the user.
 
-**Invocation:** All `nlm` commands are run via the wrapper script in this repository — no global installation needed:
+**Invocation:** All `nlm` commands are run via the wrapper script — it sets `PYTHONPATH` and calls `python3` directly, nothing is installed:
 ```bash
 plugins/notebooklm/nlm <command>
 ```
-Prerequisite: Python 3.11+ (`python3 --version`). On first run the wrapper auto-creates `nlm-cli/.venv` and installs dependencies via pip.
+Prerequisite: Python 3.11+ with `httpx`, `pydantic`, `typer`, `rich`, `websocket-client`, `platformdirs`, `fastmcp`, `pyyaml` available.
 
 **Session Rule:** Always run `plugins/notebooklm/nlm login --check` first. If the session is expired, tell the user to run `! plugins/notebooklm/nlm login` in the prompt (interactive login cannot be automated).
 

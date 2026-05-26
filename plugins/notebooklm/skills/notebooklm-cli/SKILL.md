@@ -10,13 +10,14 @@ This skill provides comprehensive guidance for using NotebookLM via both the `nl
 
 ## Setup
 
-The Python source for the `nlm` CLI lives at `plugins/notebooklm/nlm-cli/` in this repository. **No global installation required.** A wrapper script at `plugins/notebooklm/nlm` manages a local `.venv` automatically:
+The Python source lives at `plugins/notebooklm/nlm-cli/src/`. The wrapper script at `plugins/notebooklm/nlm` sets `PYTHONPATH` and calls `python3` directly — nothing is installed:
 
 ```bash
 plugins/notebooklm/nlm notebook list
 ```
 
-Only prerequisite: **Python 3.11+** (`python3 --version`). On first run the wrapper creates `nlm-cli/.venv` and installs dependencies via `pip` — subsequent calls start instantly.
+**Prerequisites:** Python 3.11+ with the following packages available in your Python environment:
+`httpx`, `pydantic`, `typer`, `rich`, `websocket-client`, `platformdirs`, `fastmcp`, `pyyaml`
 
 ### Updating the local source
 
@@ -24,8 +25,6 @@ The source is tracked as a git subtree. To pull upstream changes:
 
 ```bash
 git subtree pull --prefix=plugins/notebooklm/nlm-cli nlm-cli-upstream main --squash
-# Reinstall deps into the venv after an update:
-plugins/notebooklm/nlm-cli/.venv/bin/pip install -q -e plugins/notebooklm/nlm-cli
 ```
 
 ### MCP Server (optional)
@@ -34,8 +33,8 @@ plugins/notebooklm/nlm-cli/.venv/bin/pip install -q -e plugins/notebooklm/nlm-cl
 {
   "mcpServers": {
     "notebooklm-mcp": {
-      "command": "plugins/notebooklm/nlm-cli/.venv/bin/python",
-      "args": ["-m", "notebooklm_tools.mcp.server"]
+      "command": "bash",
+      "args": ["-c", "PYTHONPATH=plugins/notebooklm/nlm-cli/src python3 -m notebooklm_tools.mcp.server"]
     }
   }
 }
