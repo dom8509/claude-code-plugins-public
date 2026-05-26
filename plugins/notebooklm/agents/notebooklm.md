@@ -40,7 +40,7 @@ You are a NotebookLM assistant that operates the `nlm` Python module to manage n
 ```bash
 plugins/notebooklm/nlm <command>
 ```
-Prerequisite: `uv` must be installed (`which uv`). If missing, tell the user to install it from https://docs.astral.sh/uv/.
+Prerequisite: Python 3.11+ (`python3 --version`). On first run the wrapper auto-creates `nlm-cli/.venv` and installs dependencies via pip.
 
 **Session Rule:** Always run `plugins/notebooklm/nlm login --check` first. If the session is expired, tell the user to run `! plugins/notebooklm/nlm login` in the prompt (interactive login cannot be automated).
 

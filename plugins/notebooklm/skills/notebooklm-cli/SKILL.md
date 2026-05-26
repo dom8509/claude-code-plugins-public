@@ -10,13 +10,13 @@ This skill provides comprehensive guidance for using NotebookLM via both the `nl
 
 ## Setup
 
-The Python source for the `nlm` CLI lives at `plugins/notebooklm/nlm-cli/` in this repository. **No global installation required.** A wrapper script at `plugins/notebooklm/nlm` invokes the Python module directly via `uv`:
+The Python source for the `nlm` CLI lives at `plugins/notebooklm/nlm-cli/` in this repository. **No global installation required.** A wrapper script at `plugins/notebooklm/nlm` manages a local `.venv` automatically:
 
 ```bash
 plugins/notebooklm/nlm notebook list
 ```
 
-Only prerequisite: [`uv`](https://docs.astral.sh/uv/) must be available. `uv` resolves and caches dependencies automatically on first run.
+Only prerequisite: **Python 3.11+** (`python3 --version`). On first run the wrapper creates `nlm-cli/.venv` and installs dependencies via `pip` — subsequent calls start instantly.
 
 ### Updating the local source
 
@@ -24,18 +24,18 @@ The source is tracked as a git subtree. To pull upstream changes:
 
 ```bash
 git subtree pull --prefix=plugins/notebooklm/nlm-cli nlm-cli-upstream main --squash
+# Reinstall deps into the venv after an update:
+plugins/notebooklm/nlm-cli/.venv/bin/pip install -q -e plugins/notebooklm/nlm-cli
 ```
 
 ### MCP Server (optional)
-
-To run the MCP server without installation:
 
 ```json
 {
   "mcpServers": {
     "notebooklm-mcp": {
-      "command": "uv",
-      "args": ["run", "--directory", "plugins/notebooklm/nlm-cli", "python", "-m", "notebooklm_tools.mcp.server"]
+      "command": "plugins/notebooklm/nlm-cli/.venv/bin/python",
+      "args": ["-m", "notebooklm_tools.mcp.server"]
     }
   }
 }
@@ -52,7 +52,7 @@ To run the MCP server without installation:
 3. **If BOTH MCP tools AND wrapper are available**: **ASK the user** which they prefer to use before proceeding
 4. **If only MCP tools are available**: Use them directly (refer to tool docstrings for parameters)
 5. **If only the wrapper is available**: Use it via Bash — `plugins/notebooklm/nlm <command>`
-6. **If NEITHER is available**: Check that `uv` is installed (`which uv`); the wrapper requires it
+6. **If NEITHER is available**: Check that Python 3.11+ is installed (`python3 --version`)
 
 **Decision Logic:**
 ```
@@ -67,7 +67,7 @@ else if has_mcp_tools:
 else if has_cli:
     bash("plugins/notebooklm/nlm notebook list")
 else:
-    # uv not found — tell user to install uv first: https://docs.astral.sh/uv/
+    # Python 3.11+ not found — tell user to install it
 ```
 
 All `nlm` commands below are run via `plugins/notebooklm/nlm <args>` — abbreviated as `nlm` for readability.

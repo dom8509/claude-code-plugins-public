@@ -1,4 +1,13 @@
 #!/usr/bin/env bash
-# Wrapper: calls the nlm Python module directly via uv — no global install needed.
+# Wrapper: runs the nlm Python module from a local venv — no global install needed.
+# First run creates .venv and installs dependencies via pip (requires Python 3.11+).
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-exec uv run --directory "$SCRIPT_DIR/nlm-cli" python -m notebooklm_tools.cli.main "$@"
+NLM_DIR="$SCRIPT_DIR/nlm-cli"
+VENV="$NLM_DIR/.venv"
+
+if [ ! -d "$VENV" ]; then
+    python3 -m venv "$VENV"
+    "$VENV/bin/pip" install -q -e "$NLM_DIR"
+fi
+
+exec "$VENV/bin/python" -m notebooklm_tools.cli.main "$@"
