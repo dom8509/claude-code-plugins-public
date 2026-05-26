@@ -1,12 +1,12 @@
 ---
 name: notebooklm-cli
-description: "Expert guide for the NotebookLM CLI (`nlm`) and MCP server - interfaces for Google NotebookLM. Use this skill when users want to interact with NotebookLM programmatically, including: creating/managing notebooks, adding sources (URLs, YouTube, text, Google Drive), generating content (podcasts, reports, quizzes, flashcards, mind maps, slides, infographics, videos, data tables), conducting research, chatting with sources, or automating NotebookLM workflows. Triggers on mentions of \"nlm\", \"notebooklm\", \"notebook lm\", \"podcast generation\", \"audio overview\", or any NotebookLM-related automation task."
+description: "Expert guide for the NotebookLM CLI (`nlm`) — Python-based interface for Google NotebookLM. Use this skill when users want to interact with NotebookLM programmatically, including: creating/managing notebooks, adding sources (URLs, YouTube, text, Google Drive), generating content (podcasts, reports, quizzes, flashcards, mind maps, slides, infographics, videos, data tables), conducting research, chatting with sources, or automating NotebookLM workflows. Triggers on mentions of \"nlm\", \"notebooklm\", \"notebook lm\", \"podcast generation\", \"audio overview\", or any NotebookLM-related automation task."
 version: "0.6.11"
 ---
 
-# NotebookLM CLI & MCP Expert
+# NotebookLM CLI Expert
 
-This skill provides comprehensive guidance for using NotebookLM via both the `nlm` CLI and MCP tools.
+This skill provides comprehensive guidance for using NotebookLM via the `nlm` Python scripts.
 
 ## Setup
 
@@ -17,7 +17,7 @@ python3 plugins/notebooklm/nlm-cli/src/notebooklm_tools/cli/main.py notebook lis
 ```
 
 **Prerequisites:** Python 3.11+ with the following packages available:
-`httpx`, `pydantic`, `typer`, `rich`, `websocket-client`, `platformdirs`, `fastmcp`, `pyyaml`
+`httpx`, `pydantic`, `typer`, `rich`, `websocket-client`, `platformdirs`, `pyyaml`
 
 ### Updating the local source
 
@@ -27,48 +27,7 @@ The source is tracked as a git subtree. To pull upstream changes:
 git subtree pull --prefix=plugins/notebooklm/nlm-cli nlm-cli-upstream main --squash
 ```
 
-### MCP Server (optional)
-
-```json
-{
-  "mcpServers": {
-    "notebooklm-mcp": {
-      "command": "python3",
-      "args": ["plugins/notebooklm/nlm-cli/src/notebooklm_tools/mcp/server.py"]
-    }
-  }
-}
-```
-
 ---
-
-## Tool Detection (CRITICAL - Read First!)
-
-**ALWAYS check which tools are available before proceeding:**
-
-1. **Check for MCP tools**: Look for tools starting with `mcp__notebooklm-mcp__*` or `mcp_notebooklm_*`
-2. **Check if the wrapper is runnable**: Run `plugins/notebooklm/nlm --version` to verify
-3. **If BOTH MCP tools AND wrapper are available**: **ASK the user** which they prefer to use before proceeding
-4. **If only MCP tools are available**: Use them directly (refer to tool docstrings for parameters)
-5. **If only the wrapper is available**: Use it via Bash — `plugins/notebooklm/nlm <command>`
-6. **If NEITHER is available**: Check that Python 3.11+ is installed (`python3 --version`)
-
-**Decision Logic:**
-```
-NLM = "python3 plugins/notebooklm/nlm-cli/src/notebooklm_tools/cli/main.py"
-has_mcp_tools = check_available_tools()   # Look for mcp__notebooklm-mcp__*
-has_cli = run(NLM + " --version") succeeds
-
-if has_mcp_tools and has_cli:
-    # ASK USER: "I can use either MCP tools or the Python scripts. Which do you prefer?"
-    user_preference = ask_user()
-else if has_mcp_tools:
-    mcp__notebooklm-mcp__notebook_list()
-else if has_cli:
-    bash(NLM + " notebook list")
-else:
-    # Python 3.11+ or required packages missing — tell user
-```
 
 All `nlm` commands below are invoked as:
 ```bash
@@ -76,11 +35,7 @@ python3 plugins/notebooklm/nlm-cli/src/notebooklm_tools/cli/main.py <args>
 ```
 abbreviated as `nlm` for readability.
 
-This skill documents BOTH approaches. Choose the appropriate one based on tool availability and **user preference**.
-
 ## Quick Reference
-
-**Run `nlm --ai` to get comprehensive AI-optimized documentation** - this provides a complete view of all CLI capabilities.
 
 ```bash
 nlm --help              # List all commands
@@ -93,19 +48,17 @@ nlm --version           # Check installed version
 
 1. **Always authenticate first**: Run `nlm login` before any operations
 2. **Sessions expire in ~20 minutes**: Re-run `nlm login` if commands start failing
-3. **⚠️ ALWAYS ASK USER BEFORE DELETE**: Before executing ANY delete command, ask the user for explicit confirmation. Deletions are **irreversible**. Show what will be deleted and warn about permanent data loss.
-4. **`--confirm` is REQUIRED**: All generation and delete commands need `--confirm` or `-y` (CLI) or `confirm=True` (MCP)
+3. **⚠️ ALWAYS ASK USER BEFORE DELETE**: Before executing ANY delete command, ask the user for explicit confirmation. Deletions are **irreversible**.
+4. **`--confirm` is REQUIRED**: All generation and delete commands need `--confirm` or `-y`
 5. **Research requires `--notebook-id`**: The flag is mandatory, not positional
 6. **Capture IDs from output**: Create/start commands return IDs needed for subsequent operations
 7. **Use aliases**: Simplify long UUIDs with `nlm alias set <name> <uuid>`
-8. **Check aliases before creating**: Run `nlm alias list` before creating a new alias to avoid conflicts with existing names.
-9. **DO NOT launch REPL**: Never use `nlm chat start` - it opens an interactive REPL that AI tools cannot control. Use `nlm notebook query` for one-shot Q&A instead.
-10. **Choose output format wisely**: Default output (no flags) is compact and token-efficient—use it for status checks. Use `--quiet` to capture IDs for piping. Only use `--json` when you need to parse specific fields programmatically.
-11. **Use `--help` when unsure**: Run `nlm <command> --help` to see available options and flags for any command.
+8. **Check aliases before creating**: Run `nlm alias list` before creating a new alias to avoid conflicts.
+9. **DO NOT launch REPL**: Never use `nlm chat start` — it opens an interactive REPL. Use `nlm notebook query` for one-shot Q&A instead.
+10. **Choose output format wisely**: Default output is compact and token-efficient. Use `--quiet` to capture IDs for piping. Only use `--json` when you need to parse specific fields programmatically.
+11. **Use `--help` when unsure**: Run `nlm <command> --help` to see available options.
 
 ## Workflow Decision Tree
-
-Use this to determine the right sequence of commands:
 
 ```
 User wants to...
@@ -147,27 +100,6 @@ User wants to...
 
 ### 1. Authentication
 
-#### MCP Authentication
-
-If using MCP tools and encountering authentication errors:
-
-```bash
-# Run the CLI authentication (works for both CLI and MCP)
-nlm login
-
-# Then reload tokens in MCP
-mcp__notebooklm-mcp__refresh_auth()
-```
-
-Or manually save cookies via MCP (fallback):
-```python
-# Extract cookies from Chrome DevTools and save
-mcp__notebooklm-mcp__save_auth_tokens(cookies="<cookie_header>")
-```
-```
-
-#### CLI Authentication
-
 ```bash
 nlm login                           # Launch browser, extract cookies (primary method)
 nlm login --check                   # Validate current session
@@ -179,21 +111,12 @@ nlm login profile delete <name>     # Delete a profile
 nlm login profile rename <old> <new> # Rename a profile
 ```
 
-**Multi-Profile Support**: Each profile gets its own isolated browser session (supports Chrome, Arc, Brave, Edge, Chromium, and more), so you can be logged into multiple Google accounts simultaneously.
+**Multi-Profile Support**: Each profile gets its own isolated browser session (supports Chrome, Arc, Brave, Edge, Chromium, and more).
 
 **Session lifetime**: ~20 minutes. Re-authenticate when commands fail with auth errors.
 
-**Switching MCP Accounts**: The MCP server always uses the active default profile. If you need to switch which Google account the MCP server is communicating with, you MUST use the CLI: run `nlm login switch <name>`. Your next MCP tool call will instantly use the new account.
-
-**Note**: Both MCP and CLI share the same authentication backend, so authenticating with one works for both.
-
 ### 2. Notebook Management
 
-#### MCP Tools
-
-Use tools: `notebook_list`, `notebook_create`, `notebook_get`, `notebook_describe`, `notebook_query`, `notebook_rename`, `notebook_delete`. All accept `notebook_id` parameter. Delete requires `confirm=True`.
-
-#### CLI Commands
 ```bash
 nlm notebook list                      # List all notebooks
 nlm notebook list --json               # JSON output for parsing
@@ -208,17 +131,6 @@ nlm notebook delete <id> --confirm     # PERMANENT deletion
 
 ### 3. Source Management
 
-#### MCP Tools
-
-Use `source_add` with these `source_type` values:
-- `url` - Web page or YouTube URL (`url` param)
-- `text` - Pasted content (`text` + `title` params)
-- `file` - Local file upload (`file_path` param)
-- `drive` - Google Drive doc (`document_id` + `doc_type` params)
-
-Other tools: `source_list_drive`, `source_describe`, `source_get_content`, `source_rename`, `source_sync_drive` (requires `confirm=True`), `source_delete` (requires `confirm=True`).
-
-#### CLI Commands
 ```bash
 # Adding sources
 nlm source add <nb-id> --url "https://..."           # Web page
@@ -244,7 +156,6 @@ nlm source sync <nb-id> --source-ids <ids> --confirm  # Sync specific
 
 # Rename
 nlm source rename <source-id> "New Title" --notebook <nb-id>
-nlm rename source <source-id> "New Title" --notebook <nb-id>  # verb-first
 
 # Deletion
 nlm source delete <source-id> --confirm
@@ -256,15 +167,6 @@ nlm source delete <source-id> --confirm
 
 Research finds NEW sources from the web or Google Drive.
 
-#### MCP Tools
-
-Use `research_start` with:
-- `source`: `web` or `drive`
-- `mode`: `fast` (~30s) or `deep` (~5min, web only)
-
-Workflow: `research_start` → poll `research_status` → `research_import`
-
-#### CLI Commands
 ```bash
 # Start research (--notebook-id is REQUIRED)
 nlm research start "query" --notebook-id <id>              # Fast web (~30s)
@@ -287,32 +189,6 @@ nlm research import <nb-id> <task-id> --timeout 600    # Custom timeout (default
 **Modes**: `fast` (~30s, ~10 sources) | `deep` (~5min, ~40+ sources, web only)
 
 ### 5. Content Generation (Studio)
-
-#### MCP Tools (Unified Creation)
-
-Use `studio_create` with `artifact_type` and type-specific options. All require `confirm=True`.
-
-| artifact_type | Key Options |
-|--------------|-------------|
-| `audio` | `audio_format`: deep_dive/brief/critique/debate, `audio_length`: short/default/long |
-| `video` | `video_format`: explainer/brief, `visual_style`: auto_select/classic/whiteboard/kawaii/anime/watercolor/retro_print/heritage/paper_craft |
-| `report` | `report_format`: Briefing Doc/Study Guide/Blog Post/Create Your Own, `custom_prompt` |
-| `quiz` | `question_count`, `difficulty`: easy/medium/hard |
-| `flashcards` | `difficulty`: easy/medium/hard |
-| `mind_map` | `title` |
-| `slide_deck` | `slide_format`: detailed_deck/presenter_slides, `slide_length`: short/default |
-| `infographic` | `orientation`: landscape/portrait/square, `detail_level`: concise/standard/detailed, `infographic_style`: auto_select/sketch_note/professional/bento_grid/editorial/instructional/bricks/clay/anime/kawaii/scientific |
-| `data_table` | `description` (REQUIRED) |
-
-**Common options**: `source_ids`, `language` (BCP-47 code), `focus_prompt`
-
-**Revise Slides:** Use `studio_revise` to revise individual slides in an existing slide deck.
-- Requires `artifact_id` (from `studio_status`) and `slide_instructions`
-- Creates a NEW artifact — the original is not modified
-- Slide numbers are 1-based (slide 1 = first slide)
-- Poll `studio_status` after calling to check when the new deck is ready
-
-#### CLI Commands
 
 All generation commands share these flags:
 - `--confirm` or `-y`: **REQUIRED** to execute
@@ -337,41 +213,30 @@ nlm report create <id> --format "Create Your Own" --prompt "Custom..." --confirm
 nlm quiz create <id> --confirm
 nlm quiz create <id> --count 5 --difficulty 3 --confirm
 nlm quiz create <id> --count 10 --difficulty 3 --focus "Focus on key concepts" --confirm
-# Count: number of questions (default: 2)
-# Difficulty: 1-5 (1=easy, 5=hard)
-# Focus: optional text to guide quiz generation
 
 # Flashcards
 nlm flashcards create <id> --confirm
 nlm flashcards create <id> --difficulty hard --confirm
-nlm flashcards create <id> --difficulty medium --focus "Focus on definitions" --confirm
-# Difficulty: easy, medium, hard
-# Focus: optional text to guide flashcard generation
 
 # Mind Map
 nlm mindmap create <id> --confirm
 nlm mindmap create <id> --title "Topic Overview" --confirm
-nlm mindmap list <id>  # List existing mind maps
+nlm mindmap list <id>
 
 # Slides
 nlm slides create <id> --confirm
 nlm slides create <id> --format presenter --length short --confirm
-# Formats: detailed, presenter | Lengths: short, default
 nlm slides revise <artifact-id> --slide '1 Make the title larger' --confirm
-# Creates a NEW deck with revisions. Original unchanged.
 
 # Infographic
 nlm infographic create <id> --confirm
 nlm infographic create <id> --orientation portrait --detail detailed --style professional --confirm
-# Orientations: landscape, portrait, square
-# Detail: concise, standard, detailed
-# Styles: auto_select, sketch_note, professional, bento_grid, editorial, instructional, bricks, clay, anime, kawaii, scientific
+# Orientations: landscape, portrait, square | Detail: concise, standard, detailed
 
 # Video
 nlm video create <id> --confirm
 nlm video create <id> --format brief --style whiteboard --confirm
 # Formats: explainer, brief
-# Styles: auto_select, classic, whiteboard, kawaii, anime, watercolor, retro_print, heritage, paper_craft
 
 # Data Table
 nlm data-table create <id> "Extract all dates and events" --confirm
@@ -380,28 +245,26 @@ nlm data-table create <id> "Extract all dates and events" --confirm
 
 ### 6. Studio (Artifact Management)
 
-#### MCP Tools
-
-Use `studio_status` to check progress (or rename with `action="rename"`). Use `download_artifact` with `artifact_type` and `output_path`. Use `export_artifact` with `export_type`: docs/sheets. Delete with `studio_delete` (requires `confirm=True`).
-
-#### CLI Commands
 ```bash
 # Check status
 nlm studio status <nb-id>                          # List all artifacts
-nlm studio status <nb-id> --full                   # Show full details (including custom prompts)
+nlm studio status <nb-id> --full                   # Show full details
 nlm studio status <nb-id> --json                   # JSON output
 
 # Download artifacts
 nlm download audio <nb-id> --output podcast.mp3
 nlm download video <nb-id> --output video.mp4
 nlm download report <nb-id> --output report.md
-nlm download slide-deck <nb-id> --output slides.pdf           # PDF (default)
-nlm download slide-deck <nb-id> --output slides.pptx --format pptx  # PPTX
+nlm download slide-deck <nb-id> --output slides.pdf
+nlm download slide-deck <nb-id> --output slides.pptx --format pptx
 nlm download quiz <nb-id> --output quiz.json --format json
 
 # Export to Google Docs/Sheets
 nlm export sheets <nb-id> <artifact-id> --title "My Data Table"
 nlm export docs <nb-id> <artifact-id> --title "My Report"
+
+# Rename artifact
+nlm studio rename <artifact-id> "New Title"
 
 # Delete artifact
 nlm studio delete <nb-id> <artifact-id> --confirm
@@ -409,80 +272,16 @@ nlm studio delete <nb-id> <artifact-id> --confirm
 
 **Status values**: `completed` (✓), `in_progress` (●), `failed` (✗)
 
-**Prompt Extraction**: The `studio_status` tool returns a `custom_instructions` field for each artifact. This contains the original focus prompt or custom instructions used to generate that artifact (e.g., the prompt for a "Create Your Own" report, or the focus topic for an Audio Overview). This is useful for retrieving the exact prompt that generated a successful artifact.
-
-### Renaming Resources
-
-#### Rename a Source
-
-**MCP Tool:** `source_rename(notebook_id, source_id, new_title)`
-
-**CLI:**
-```bash
-nlm source rename <source-id> "New Title" --notebook <notebook-id>
-nlm rename source <source-id> "New Title" --notebook <notebook-id>  # verb-first
-```
-
-#### Rename a Studio Artifact
-
-#### MCP Tools
-
-Use `studio_status` with `action="rename"`, `artifact_id`, and `new_title`.
-
-#### CLI Commands
-```bash
-nlm studio rename <artifact-id> "New Title"
-nlm rename studio <artifact-id> "New Title"  # verb-first alternative
-```
-
-### Server Info (Version Check)
-
-#### MCP Tools
-
-Use `server_info` to get version and check for updates:
-
-```python
-mcp__notebooklm-mcp__server_info()
-# Returns: version, latest_version, update_available, update_command
-```
-
-#### CLI Commands
-```bash
-nlm --version  # Shows version and update availability
-```
-
 ### 7. Chat Configuration and Notes
 
-#### MCP Tools
+> ⚠️ **DO NOT USE `nlm chat start`** — it launches an interactive REPL. Use `nlm notebook query` instead.
 
-Use `chat_configure` with `goal`: default/learning_guide/custom. Use `note` with `action`: create/list/update/delete. Delete requires `confirm=True`.
-
-#### CLI Commands
-
-> ⚠️ **AI TOOLS: DO NOT USE `nlm chat start`** - It launches an interactive REPL that cannot be controlled programmatically. Use `nlm notebook query` for one-shot Q&A instead.
-
-For human users at a terminal:
-
-```bash
-nlm chat start <nb-id>  # Launch interactive REPL
-```
-
-**REPL Commands**:
-- `/sources` - List available sources
-- `/clear` - Reset conversation context
-- `/help` - Show commands
-- `/exit` - Exit REPL
-
-**Configure chat behavior** (works for both REPL and query):
 ```bash
 nlm chat configure <id> --goal default
 nlm chat configure <id> --goal learning_guide
 nlm chat configure <id> --goal custom --prompt "Act as a tutor..."
 nlm chat configure <id> --response-length longer  # longer, default, shorter
-```
 
-**Notes management**:
-```bash
 nlm note create <nb-id> "Content" --title "Title"
 nlm note list <nb-id>
 nlm note update <nb-id> <note-id> --content "New content"
@@ -491,214 +290,96 @@ nlm note delete <nb-id> <note-id> --confirm
 
 ### 8. Notebook Sharing
 
-#### MCP Tools
-
-Use `notebook_share_status` to check, `notebook_share_public` to enable/disable public link, `notebook_share_invite` with `email` and `role`: viewer/editor.
-
-#### CLI Commands
 ```bash
-# Check sharing status
 nlm share status <nb-id>
-
-# Enable/disable public link
-nlm share public <nb-id>          # Enable
-nlm share public <nb-id> --off    # Disable
-
-# Invite collaborator
+nlm share public <nb-id>          # Enable public link
+nlm share public <nb-id> --off    # Disable public link
 nlm share invite <nb-id> user@example.com
 nlm share invite <nb-id> user@example.com --role editor
 ```
 
 ### 9. Aliases (UUID Shortcuts)
 
-Simplify long UUIDs:
-
 ```bash
 nlm alias set myproject abc123-def456...  # Create alias (auto-detects type)
 nlm alias get myproject                    # Resolve to UUID
 nlm alias list                             # List all aliases
 nlm alias delete myproject                 # Remove alias
-
-# Use aliases anywhere
-nlm notebook get myproject
-nlm source list myproject
-nlm audio create myproject --confirm
 ```
 
 ### 10. Configuration
 
-CLI-only commands for managing settings:
-
 ```bash
-nlm config show                              # Show current config
-nlm config get <key>                         # Get specific setting
-nlm config set <key> <value>                 # Update setting
-nlm config set output.format json            # Change default output
-
-# For switching profiles, prefer the simpler command:
+nlm config show
+nlm config get <key>
+nlm config set <key> <value>
+nlm config set output.format json
 nlm login switch work                        # Switch default profile
 ```
-
-**Available Settings:**
 
 | Key | Default | Description |
 |-----|---------|-------------|
 | `output.format` | `table` | Default output format (table, json) |
 | `output.color` | `true` | Enable colored output |
 | `output.short_ids` | `true` | Show shortened IDs |
-| `auth.browser` | `auto` | Preferred browser for login (auto, chrome, arc, brave, edge, chromium, vivaldi, opera) |
+| `auth.browser` | `auto` | Preferred browser for login |
 | `auth.default_profile` | `default` | Profile to use when `--profile` not specified |
 
-### 11. Skill Management
+### 11. Batch Operations
 
-Manage the NotebookLM skill installation for various AI assistants:
-
-```bash
-nlm skill list                              # Show installation status
-nlm skill update                            # Update all outdated skills
-nlm skill update <tool>                     # Update specific skill (e.g., claude-code)
-nlm skill install <tool>                    # Install skill
-nlm skill install hermes                    # Install Hermes Agent skill
-nlm skill uninstall <tool>                  # Uninstall skill
-```
-
-**Verb-first aliases**: `nlm update skill`, `nlm list skills`, `nlm install skill`
-
-## Output Formats
-
-Most list commands support multiple formats:
-
-| Flag | Description |
-|------|-------------|
-| (none) | Rich table (human-readable) |
-| `--json` | JSON output (for parsing) |
-| `--quiet` | IDs only (for piping) |
-| `--title` | "ID: Title" format |
-| `--url` | "ID: URL" format (sources only) |
-| `--full` | All columns/details |
-
-### 12. Batch Operations
-
-Perform the same action across multiple notebooks at once.
-
-#### MCP Tools
-
-Use `batch` with `action` parameter. Select notebooks by `notebook_names`, `tags`, or `all=True`.
-
-```python
-batch(action="query", query="What are the key findings?", notebook_names="AI Research, Dev Tools")
-batch(action="add_source", source_url="https://example.com", tags="ai,research")
-batch(action="create", titles="Project A, Project B, Project C")
-batch(action="delete", notebook_names="Old Project", confirm=True)
-batch(action="studio", artifact_type="audio", tags="research", confirm=True)
-```
-
-#### CLI Commands
 ```bash
 nlm batch query "What are the key takeaways?" --notebooks "id1,id2"
-nlm batch query "Summarize" --tags "ai,research"      # Query by tag
-nlm batch query "Summarize" --all                      # Query ALL notebooks
+nlm batch query "Summarize" --tags "ai,research"
+nlm batch query "Summarize" --all
 nlm batch add-source --url "https://..." --notebooks "id1,id2"
-nlm batch create "Project A, Project B, Project C"     # Create multiple
-nlm batch delete --notebooks "id1,id2" --confirm       # Delete multiple
-nlm batch studio --type audio --tags "research" --confirm  # Generate across notebooks
+nlm batch create "Project A, Project B, Project C"
+nlm batch delete --notebooks "id1,id2" --confirm
+nlm batch studio --type audio --tags "research" --confirm
 ```
 
-### 13. Cross-Notebook Query
+### 12. Cross-Notebook Query
 
-Query multiple notebooks and get **aggregated answers with per-notebook citations**.
-
-#### MCP Tools
-
-```python
-cross_notebook_query(query="Compare approaches", notebook_names="Notebook A, Notebook B")
-cross_notebook_query(query="Summarize", tags="ai,research")
-cross_notebook_query(query="Everything", all=True)
-```
-
-#### CLI Commands
 ```bash
 nlm cross query "What features are discussed?" --notebooks "id1,id2"
 nlm cross query "Compare approaches" --tags "ai,research"
 nlm cross query "Summarize everything" --all
 ```
 
-### 14. Pipelines
+### 13. Pipelines
 
-Define and execute multi-step notebook workflows. Three built-in pipelines plus support for custom YAML pipelines.
-
-#### MCP Tools
-
-```python
-pipeline(action="list")  # List available pipelines
-pipeline(action="run", notebook_id="...", pipeline_name="ingest-and-podcast", input_url="https://...")
-```
-
-#### CLI Commands
 ```bash
-nlm pipeline list                                         # List available pipelines
+nlm pipeline list
 nlm pipeline run <notebook> ingest-and-podcast --url "https://..."
 nlm pipeline run <notebook> research-and-report --url "https://..."
-nlm pipeline run <notebook> multi-format                  # Audio + report + flashcards
+nlm pipeline run <notebook> multi-format
 ```
 
 **Built-in pipelines:** `ingest-and-podcast`, `research-and-report`, `multi-format`
 
 Create custom pipelines: add YAML files to `~/.notebooklm-mcp-cli/pipelines/`
 
-### 15. Tags & Smart Select
+### 14. Tags & Smart Select
 
-Tag notebooks for organization and use tags to target batch operations.
-
-#### MCP Tools
-
-```python
-tag(action="add", notebook_id="...", tags="ai,research,llm")
-tag(action="remove", notebook_id="...", tags="ai")
-tag(action="list")                           # List all tagged notebooks
-tag(action="select", query="ai research")    # Find notebooks by tag match
-```
-
-#### CLI Commands
 ```bash
-nlm tag add <notebook> --tags "ai,research,llm"           # Add tags
-nlm tag add <notebook> --tags "ai" --title "My Notebook"  # With display title
-nlm tag remove <notebook> --tags "ai"                     # Remove tags
-nlm tag list                                              # List all tagged notebooks
-nlm tag select "ai research"                              # Find notebooks by tag match
+nlm tag add <notebook> --tags "ai,research,llm"
+nlm tag remove <notebook> --tags "ai"
+nlm tag list
+nlm tag select "ai research"
 ```
 
-### 16. Source Labels
-
-Organize notebook sources into thematic categories using AI-generated or manual labels. Auto-labeling requires 5+ sources.
-
-#### MCP Tools
-
-```python
-label(notebook_id="...", action="auto")                                    # AI-generate labels
-label(notebook_id="...", action="list")                                    # List all labels
-label(notebook_id="...", action="create", name="Research Papers", emoji="📚")
-label(notebook_id="...", action="rename", label_id="...", name="New Name")
-label(notebook_id="...", action="set_emoji", label_id="...", emoji="🔬")
-label(notebook_id="...", action="move_source", source_id="...", label_id="...")
-label(notebook_id="...", action="delete", label_id="...", confirm=True)
-label(notebook_id="...", action="reorganize", confirm=True)                # Replace all labels
-label(notebook_id="...", action="reorganize", unlabeled_only=True)         # Label only uncategorized
-```
-
-#### CLI Commands
+### 15. Source Labels
 
 ```bash
 nlm label auto <nb-id>                                  # AI-generate categories (5+ sources required)
-nlm label list <nb-id>                                  # Show all labels
-nlm label create <nb-id> "Research Papers" --emoji 📚  # Create label with optional emoji
-nlm label rename <nb-id> <label-id> "New Name"         # Rename label
-nlm label set-emoji <nb-id> <label-id> "🔬"            # Attach emoji marker
-nlm label move-source <nb-id> <source-id> <label-id>   # Assign source to label
-nlm label delete <nb-id> <label-id> --confirm          # Delete label (irreversible)
-nlm label reorganize <nb-id>                            # AI re-categorize all sources (prompts)
-nlm label reorganize <nb-id> --unlabeled                # Label only uncategorized sources
-nlm label reorganize <nb-id> --confirm                  # Re-categorize all, skip prompt
+nlm label list <nb-id>
+nlm label create <nb-id> "Research Papers" --emoji 📚
+nlm label rename <nb-id> <label-id> "New Name"
+nlm label set-emoji <nb-id> <label-id> "🔬"
+nlm label move-source <nb-id> <source-id> <label-id>
+nlm label delete <nb-id> <label-id> --confirm
+nlm label reorganize <nb-id>
+nlm label reorganize <nb-id> --unlabeled
+nlm label reorganize <nb-id> --confirm
 ```
 
 ## Common Patterns
@@ -706,13 +387,13 @@ nlm label reorganize <nb-id> --confirm                  # Re-categorize all, ski
 ### Pattern 1: Research → Podcast Pipeline
 
 ```bash
-nlm notebook create "AI Research 2026"   # Capture ID
+nlm notebook create "AI Research 2026"
 nlm alias set ai <notebook-id>
 nlm research start "agentic AI trends" --notebook-id ai --mode deep
-nlm research status ai --max-wait 300    # Wait up to 5 min
-nlm research import ai <task-id>         # Import all sources
+nlm research status ai --max-wait 300
+nlm research import ai <task-id>
 nlm audio create ai --format deep_dive --confirm
-nlm studio status ai                     # Check generation progress
+nlm studio status ai
 ```
 
 ### Pattern 2: Quick Content Ingestion
@@ -736,25 +417,17 @@ nlm flashcards create <id> --difficulty medium --focus "Core terms" --confirm
 
 ```bash
 nlm source add <id> --drive 1KQH3eW0hMBp7WK... --type slides
-# ... time passes, document is edited ...
-nlm source stale <id>                    # Check freshness
-nlm source sync <id> --confirm           # Sync if stale
+nlm source stale <id>
+nlm source sync <id> --confirm
 ```
 
 ### Pattern 5: Batch & Cross-Notebook Workflow
 
 ```bash
-# Tag notebooks for organization
 nlm tag add <id1> --tags "ai,research"
 nlm tag add <id2> --tags "ai,product"
-
-# Query across tagged notebooks
 nlm cross query "What are the main conclusions?" --tags "ai"
-
-# Batch generate podcasts for all tagged notebooks
 nlm batch studio --type audio --tags "ai" --confirm
-
-# Run a pipeline on a single notebook
 nlm pipeline run <id> ingest-and-podcast --url "https://example.com"
 ```
 
@@ -768,13 +441,12 @@ nlm pipeline run <id> ingest-and-podcast --url "https://example.com"
 | "Source not found" | Invalid ID | `nlm source list <nb-id>` |
 | "Rate limit exceeded" | Too many calls | Wait 30s, retry |
 | "Research already in progress" | Pending research | Use `--force` or import first |
-| "Import timed out" | Too many sources | Use `--timeout 600` for larger notebooks |
-| "Google API error code 3" | Transient deep research error | Retry in a few minutes, or use `--mode fast` |
+| "Import timed out" | Too many sources | Use `--timeout 600` |
+| "Google API error code 3" | Transient deep research error | Retry or use `--mode fast` |
 | Browser doesn't launch | Port conflict | Close browser, retry |
 
 ## Rate Limiting
 
-Wait between operations to avoid rate limits:
 - Source operations: 2 seconds
 - Content generation: 5 seconds
 - Research operations: 2 seconds
@@ -782,7 +454,6 @@ Wait between operations to avoid rate limits:
 
 ## Advanced Reference
 
-For detailed information, see:
 - **[references/command_reference.md](references/command_reference.md)**: Complete command signatures
 - **[references/troubleshooting.md](references/troubleshooting.md)**: Detailed error handling
 - **[references/workflows.md](references/workflows.md)**: End-to-end task sequences

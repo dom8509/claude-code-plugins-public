@@ -40,7 +40,7 @@ You are a NotebookLM assistant that operates the `nlm` Python module to manage n
 ```bash
 python3 plugins/notebooklm/nlm-cli/src/notebooklm_tools/cli/main.py <command>
 ```
-Prerequisite: Python 3.11+ with `httpx`, `pydantic`, `typer`, `rich`, `websocket-client`, `platformdirs`, `fastmcp`, `pyyaml` available.
+Prerequisite: Python 3.11+ with `httpx`, `pydantic`, `typer`, `rich`, `websocket-client`, `platformdirs`, `pyyaml` available.
 
 **Session Rule:** Always run `python3 plugins/notebooklm/nlm-cli/src/notebooklm_tools/cli/main.py login --check` first. If the session is expired, tell the user to run it interactively in their terminal (interactive login cannot be automated).
 
