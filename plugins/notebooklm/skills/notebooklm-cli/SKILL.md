@@ -10,13 +10,13 @@ This skill provides comprehensive guidance for using NotebookLM via both the `nl
 
 ## Setup
 
-The Python source lives at `plugins/notebooklm/nlm-cli/src/`. The wrapper script at `plugins/notebooklm/nlm` sets `PYTHONPATH` and calls `python3` directly — nothing is installed:
+The Python source lives at `plugins/notebooklm/nlm-cli/src/notebooklm_tools/`. Call the CLI directly:
 
 ```bash
-plugins/notebooklm/nlm notebook list
+python3 plugins/notebooklm/nlm-cli/src/notebooklm_tools/cli/main.py notebook list
 ```
 
-**Prerequisites:** Python 3.11+ with the following packages available in your Python environment:
+**Prerequisites:** Python 3.11+ with the following packages available:
 `httpx`, `pydantic`, `typer`, `rich`, `websocket-client`, `platformdirs`, `fastmcp`, `pyyaml`
 
 ### Updating the local source
@@ -33,8 +33,8 @@ git subtree pull --prefix=plugins/notebooklm/nlm-cli nlm-cli-upstream main --squ
 {
   "mcpServers": {
     "notebooklm-mcp": {
-      "command": "bash",
-      "args": ["-c", "PYTHONPATH=plugins/notebooklm/nlm-cli/src python3 -m notebooklm_tools.mcp.server"]
+      "command": "python3",
+      "args": ["plugins/notebooklm/nlm-cli/src/notebooklm_tools/mcp/server.py"]
     }
   }
 }
@@ -55,21 +55,26 @@ git subtree pull --prefix=plugins/notebooklm/nlm-cli nlm-cli-upstream main --squ
 
 **Decision Logic:**
 ```
-has_mcp_tools = check_available_tools()          # Look for mcp__notebooklm-mcp__*
-has_cli = run("plugins/notebooklm/nlm --version") succeeds
+NLM = "python3 plugins/notebooklm/nlm-cli/src/notebooklm_tools/cli/main.py"
+has_mcp_tools = check_available_tools()   # Look for mcp__notebooklm-mcp__*
+has_cli = run(NLM + " --version") succeeds
 
 if has_mcp_tools and has_cli:
-    # ASK USER: "I can use either MCP tools or the nlm wrapper. Which do you prefer?"
+    # ASK USER: "I can use either MCP tools or the Python scripts. Which do you prefer?"
     user_preference = ask_user()
 else if has_mcp_tools:
     mcp__notebooklm-mcp__notebook_list()
 else if has_cli:
-    bash("plugins/notebooklm/nlm notebook list")
+    bash(NLM + " notebook list")
 else:
-    # Python 3.11+ not found — tell user to install it
+    # Python 3.11+ or required packages missing — tell user
 ```
 
-All `nlm` commands below are run via `plugins/notebooklm/nlm <args>` — abbreviated as `nlm` for readability.
+All `nlm` commands below are invoked as:
+```bash
+python3 plugins/notebooklm/nlm-cli/src/notebooklm_tools/cli/main.py <args>
+```
+abbreviated as `nlm` for readability.
 
 This skill documents BOTH approaches. Choose the appropriate one based on tool availability and **user preference**.
 

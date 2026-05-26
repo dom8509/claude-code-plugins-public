@@ -2,6 +2,13 @@
 
 import contextlib
 import logging
+import os as _os
+import sys as _sys
+
+# Allow calling this file directly without installation:
+# python3 .../cli/main.py <args>
+_sys.path.insert(0, _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", ".."))
+del _os, _sys
 
 import typer
 
