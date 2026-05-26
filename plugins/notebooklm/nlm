@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Wrapper: calls the nlm Python module directly via uv — no global install needed.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+exec uv run --directory "$SCRIPT_DIR/nlm-cli" python -m notebooklm_tools.cli.main "$@"
